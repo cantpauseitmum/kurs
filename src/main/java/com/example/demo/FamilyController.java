@@ -6,6 +6,8 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -92,15 +94,34 @@ public class FamilyController {
         }
         response.sendError(HttpServletResponse.SC_CONFLICT, "Family doesn't exist");
     }
+
     @RequestMapping(value = "/google", method = RequestMethod.GET)
-    public ResponseEntity<Void> getGoogle(){
+    public ResponseEntity<Void> getGoogle() {
         URI location = URI.create("https://google.com");
         return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
     }
 
     @RequestMapping(value = "/getALLRD", method = RequestMethod.GET)
-    public ResponseEntity<Void> getALLRD(){
+    public ResponseEntity<Void> getALLRD() {
         URI location = URI.create("/api/v1/family/getall");
         return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
+    }
+
+    @RequestMapping(value = "/getHeader", method = RequestMethod.GET)
+    public void getHeader(HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            System.out.println(headerName + ": " + headerValue);
+        }
+
+        // Pobieranie wszystkich ciasteczek z żądania
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                System.out.println(cookie.getName() + ": " + cookie.getValue());
+            }
+        }
     }
 }
