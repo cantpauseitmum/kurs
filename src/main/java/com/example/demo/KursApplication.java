@@ -13,7 +13,16 @@ public class KursApplication {
 
 	@Bean
 	public Call call(){
-		return new Call();
+		Call call = new Call();
+		call.setName("Adam");
+		return call;
+	}
+
+	@Bean(name = "callMichal")
+	Call call2(){
+		Call call = new Call();
+		call.setName("Michał");
+		return call;
 	}
 
 }
