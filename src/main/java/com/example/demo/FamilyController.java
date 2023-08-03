@@ -1,12 +1,12 @@
 package com.example.demo;
 
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "api/v1/family")
@@ -42,5 +42,25 @@ public class FamilyController {
             return;
         }
         response.sendError(HttpServletResponse.SC_CONFLICT, "Nazwa rodziny nie może być pusta oraz lista członków nie może być mniejsza niż 1");
+    }
+
+    @RequestMapping(value = "/edit/{id}", method = RequestMethod.PATCH, consumes = "application/json")
+    public void editFamily(@RequestBody Map<Object, Object> fields, @PathVariable String id, HttpServletResponse response) throws IOException {
+        Optional<Family> family = familyList.stream().filter(value -> value.getUid().equals(id)).findFirst();
+        try {
+            if (family.isPresent()) {
+                fields.forEach((k, v) -> {
+                    Field field = ReflectionUtils.findField(Family.class, (String) k);
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, family.get(), v);
+                });
+                response.sendError(HttpServletResponse.SC_OK, "Updated family information");
+                return;
+            }
+        } catch (NullPointerException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Fields aren't correct");
+            return;
+        }
+        response.sendError(HttpServletResponse.SC_NO_CONTENT, "Family doesn't exist");
     }
 }
