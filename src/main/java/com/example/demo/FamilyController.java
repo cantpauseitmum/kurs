@@ -1,6 +1,10 @@
 package com.example.demo;
 
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -127,5 +132,19 @@ public class FamilyController {
                 System.out.println(cookie.getName() + ": " + cookie.getValue());
             }
         }
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile() throws IOException {
+//        Ładujemy plik z dysku lub innej lokalizacji
+        File file = new File("src/main/resources/static/test.png");
+        Resource resource = new FileSystemResource(file);
+
+//        Tworzy ResponseEntity z zasobem i nagłówkami
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
     }
 }
