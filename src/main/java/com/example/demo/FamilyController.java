@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,6 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.*;
 
 @RestController
@@ -88,5 +91,16 @@ public class FamilyController {
             return;
         }
         response.sendError(HttpServletResponse.SC_CONFLICT, "Family doesn't exist");
+    }
+    @RequestMapping(value = "/google", method = RequestMethod.GET)
+    public ResponseEntity<Void> getGoogle(){
+        URI location = URI.create("https://google.com");
+        return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
+    }
+
+    @RequestMapping(value = "/getALLRD", method = RequestMethod.GET)
+    public ResponseEntity<Void> getALLRD(){
+        URI location = URI.create("/api/v1/family/getall");
+        return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
     }
 }
