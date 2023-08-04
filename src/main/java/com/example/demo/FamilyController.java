@@ -163,14 +163,4 @@ public class FamilyController {
             videoFileSystem.close();
         };
     }
-
-    @ExceptionHandler
-    public ResponseEntity<HttpErrorFamily> errorFamilyResponseEntity(FamilyLengthException e) {
-        HttpErrorFamily httpErrorFamily = new HttpErrorFamily();
-        httpErrorFamily.setStatus(HttpStatus.FORBIDDEN.value());
-        httpErrorFamily.setMessage(e.getMessage());
-        httpErrorFamily.setTimestamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(httpErrorFamily, HttpStatus.FORBIDDEN);
-    }
 }
