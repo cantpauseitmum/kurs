@@ -48,17 +48,16 @@ public class FamilyController {
         return familyList.stream().filter(family -> family.getName().equals(familyName)).findFirst().orElseThrow();
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public void createFamily(@RequestBody Family family, HttpServletResponse response) throws IOException {
+    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
+    public ResponseEntity<String> createFamily(@RequestBody Family family) {
+        if (family.getName().length() < 2) {
+            throw new FamilyLengthException("Pusta nazwa");
+        }
         if (family.getName() != null && !family.getMembers().isEmpty()) {
             familyList.add(family);
-            response.sendError(HttpServletResponse.SC_OK, "Dodano do listy");
-            return;
+            return new ResponseEntity<>("Dodano do listy", HttpStatus.OK);
         }
-        if (family.getName() == null) {
-            throw new FamilyLengthException("Pusta nazwa", new NullPointerException());
-        }
-        response.sendError(HttpServletResponse.SC_CONFLICT, "Nazwa rodziny nie może być pusta oraz lista członków nie może być mniejsza niż 1");
+        return null;
     }
 
     @RequestMapping(value = "/edit/{id}", method = RequestMethod.PATCH, consumes = "application/json")
@@ -163,5 +162,15 @@ public class FamilyController {
             }
             videoFileSystem.close();
         };
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<HttpErrorFamily> errorFamilyResponseEntity(FamilyLengthException e) {
+        HttpErrorFamily httpErrorFamily = new HttpErrorFamily();
+        httpErrorFamily.setStatus(HttpStatus.FORBIDDEN.value());
+        httpErrorFamily.setMessage(e.getMessage());
+        httpErrorFamily.setTimestamp(System.currentTimeMillis());
+
+        return new ResponseEntity<>(httpErrorFamily, HttpStatus.FORBIDDEN);
     }
 }
